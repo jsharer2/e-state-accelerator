@@ -1,0 +1,7 @@
+From,To,Date,Subject,Body
+"Netflix <info@mailer.netflix.com>",user@enron.com,2001-01-01,"Your Netflix Renewal","..."
+"Paypal <service@paypal.com>",user@enron.com,2001-02-02,"Payment Received","..."
+"billing@bankofamerica.com",user@enron.com,2001-03-03,"Monthly Statement","..."
+"no-reply@spotify.com",user@enron.com,2001-04-04,"Your receipt","..."
+"alerts@verizon.com",user@enron.com,2001-05-05,"Service Notification","..."
+"friend@example.com",user@enron.com,2001-06-06,"Hello","..."
