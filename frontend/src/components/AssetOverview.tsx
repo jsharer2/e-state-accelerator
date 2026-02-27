@@ -1,4 +1,4 @@
-import { Wallet, Users, Mail, Cloud } from 'lucide-react@0.344.0';
+import { Wallet, Users, Mail, Cloud } from 'lucide-react';
 
 export function AssetOverview() {
   const stats = [

@@ -1,22 +1,37 @@
 import { DiscoveryMethod } from '../pages/AssetDiscovery';
-import { Mail, Key, Smartphone, Upload, FileText, Search } from 'lucide-react@0.344.0';
+import { Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
+
+interface SetupField {
+  label: string;
+  type: 'select' | 'text' | 'email';
+  options?: string[];
+  placeholder?: string;
+}
+
+interface SetupConfig {
+  fields: SetupField[];
+  instructions: string[];
+  hasFileUpload?: boolean;
+}
 
 interface SetupViewProps {
   method: DiscoveryMethod;
   onStart: () => void;
+  onFileSelected?: (file: File) => void;
 }
 
-export function SetupView({ method, onStart }: SetupViewProps) {
-  const setupContent = {
+export function SetupView({ method, onStart, onFileSelected }: SetupViewProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const setupContent: Record<DiscoveryMethod, SetupConfig> = {
     email: {
-      fields: [
-        { label: 'Email Address', type: 'email', placeholder: 'example@email.com' },
-      ],
+      fields: [],
       instructions: [
-        'Connect your email account securely via OAuth, or',
-        'Download and upload email data export (MBOX, PST, or CSV format)',
-        'We\'ll scan for account confirmations and receipts',
-        'This process typically takes 3-5 minutes',
+        'Download your email data export (MBOX format)',
+        'Upload the file to scan for account confirmations',
+        'We scan for authentication, billing, and subscription emails',
         'All data is processed securely and not stored',
       ],
       hasFileUpload: true,
@@ -65,19 +80,30 @@ export function SetupView({ method, onStart }: SetupViewProps) {
       ],
     },
     browser: {
-      fields: [
-        { label: 'Browser', type: 'select', options: ['Chrome', 'Firefox', 'Safari', 'Edge', 'Other'] },
-      ],
+      fields: [],
       instructions: [
-        'Export browser history data',
-        'We\'ll analyze frequently visited sites',
-        'Identify potential accounts and services',
-        'History data is processed securely',
+        'Your browser history will be analyzed',
+        'We identify frequently visited services',
+        'Pattern analysis reveals potential accounts',
+        'No history data is permanently stored',
       ],
     },
   };
 
   const content = setupContent[method];
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    onFileSelected?.(file);
+    console.log('File selected:', file.name);
+  };
 
   return (
     <div className="p-6">
@@ -99,7 +125,7 @@ export function SetupView({ method, onStart }: SetupViewProps) {
               ) : (
                 <input
                   type={field.type}
-                  placeholder={field.placeholder}
+                  placeholder={field.placeholder ?? ''}
                   className="w-full px-4 py-2 border-2 border-gray-300 rounded focus:outline-none focus:border-gray-500"
                 />
               )}
@@ -116,26 +142,35 @@ export function SetupView({ method, onStart }: SetupViewProps) {
 
           {method === 'email' && (
             <div className="space-y-3">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="bg-white px-2 text-gray-500">OR</span>
-                </div>
-              </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors cursor-pointer">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".mbox,.txt,.eml"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <div
+                onClick={handleFileClick}
+                className="border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer hover:border-gray-400"
+              >
                 <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-sm text-gray-700 mb-1">Upload email data export</p>
-                <p className="text-xs text-gray-500">MBOX, PST, CSV formats supported (max 100MB)</p>
+                <p className="text-sm text-gray-700 mb-1">
+                  {selectedFile ? selectedFile.name : 'Upload email data export'}
+                </p>
+                <p className="text-xs text-gray-500">MBOX, EML, TXT formats (max 5GB)</p>
               </div>
+              {selectedFile && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded text-sm text-green-700">
+                  ✓ {selectedFile.name} selected
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-900 mb-2">How it works:</h4>
+      <div className="mb-4">
+        <h3 className="text-sm font-medium text-gray-900 mb-3">How it works:</h3>
         <ul className="space-y-2">
           {content.instructions.map((instruction, idx) => (
             <li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
@@ -149,9 +184,12 @@ export function SetupView({ method, onStart }: SetupViewProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={onStart}
-          className="flex-1 px-4 py-3 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 transition-colors"
+          disabled={!selectedFile && method === 'email'}
+          className={`flex-1 px-4 py-3 text-white text-sm rounded transition-colors ${
+            method === 'email' && !selectedFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
         >
-          {method === 'manual' ? 'Add Account' : method === 'email' ? 'Connect Email' : 'Start Scan'}
+          {method === 'email' ? 'Analyze Email File' : 'Start Scan'}
         </button>
       </div>
     </div>

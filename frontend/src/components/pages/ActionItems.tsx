@@ -1,4 +1,4 @@
-import { Square, CheckSquare, Plus, Calendar, User } from 'lucide-react@0.344.0';
+import { Square, CheckSquare, Plus, Calendar, User } from 'lucide-react';
 
 export function ActionItems() {
   const actionGroups = [

@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Search, Database, Mail, CreditCard } from 'lucide-react@0.344.0';
+import { Loader2, Search } from 'lucide-react';
 import { DiscoveryMethod } from '../pages/AssetDiscovery';
 
 interface ScanningViewProps {
   method: DiscoveryMethod;
+  progress?: number;
+  isUploading?: boolean;
   onComplete: (assets: any[]) => void;
 }
 
-export function ScanningView({ method, onComplete }: ScanningViewProps) {
+export function ScanningView({ method, progress: externalProgress = 0, isUploading = false, onComplete }: ScanningViewProps) {
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const [foundAssets, setFoundAssets] = useState<any[]>([]);
@@ -90,6 +92,13 @@ export function ScanningView({ method, onComplete }: ScanningViewProps) {
   const assets = mockAssets[method];
 
   useEffect(() => {
+    if (isUploading) {
+      // For upload, track external progress
+      setProgress(externalProgress);
+      // When upload completes (100%), don't call onComplete here - let parent handle it
+      return;
+    }
+
     const stepDuration = 1000;
     const totalDuration = steps.length * stepDuration;
     let progressInterval: NodeJS.Timeout;
@@ -143,7 +152,7 @@ export function ScanningView({ method, onComplete }: ScanningViewProps) {
       clearInterval(assetInterval);
       clearTimeout(completeTimer);
     };
-  }, []); // Empty dependency array to run only once
+  }, [method, isUploading, externalProgress]);
 
   return (
     <div className="p-6">

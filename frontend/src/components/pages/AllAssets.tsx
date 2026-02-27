@@ -1,4 +1,4 @@
-import { Filter, Search, Download, MoreVertical } from 'lucide-react@0.344.0';
+import { Filter, Search, Download, MoreVertical } from 'lucide-react';
 
 export function AllAssets() {
   const categories = [

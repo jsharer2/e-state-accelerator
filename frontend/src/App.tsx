@@ -14,21 +14,26 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
 
   const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'discovery':
-        return <AssetDiscovery />;
-      case 'assets':
-        return <AllAssets />;
-      case 'actions':
-        return <ActionItems />;
-      case 'documents':
-        return <Documents />;
-      case 'settings':
-        return <Settings />;
-      default:
-        return <Dashboard />;
+    try {
+      switch (currentPage) {
+        case 'dashboard':
+          return <Dashboard />;
+        case 'discovery':
+          return <AssetDiscovery />;
+        case 'assets':
+          return <AllAssets />;
+        case 'actions':
+          return <ActionItems />;
+        case 'documents':
+          return <Documents />;
+        case 'settings':
+          return <Settings />;
+        default:
+          return <Dashboard />;
+      }
+    } catch (error) {
+      console.error('Error rendering page:', error);
+      return <div className="p-6 text-red-600">Error loading page. Check console.</div>;
     }
   };
 

@@ -1,4 +1,4 @@
-import { Square, CheckSquare } from 'lucide-react@0.344.0';
+import { Square, CheckSquare } from 'lucide-react';
 
 export function ActionChecklist() {
   const actions = [

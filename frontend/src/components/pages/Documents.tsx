@@ -1,4 +1,4 @@
-import { Upload, FileText, Folder, Search, Download, MoreVertical } from 'lucide-react@0.344.0';
+import { Upload, FileText, Folder, Search, Download, MoreVertical } from 'lucide-react';
 
 export function Documents() {
   const folders = [

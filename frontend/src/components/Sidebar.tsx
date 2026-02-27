@@ -1,4 +1,4 @@
-import { Home, Search, FolderOpen, CheckSquare, FileText, Settings } from 'lucide-react@0.344.0';
+import { Home, Search, FolderOpen, CheckSquare, FileText, Settings } from 'lucide-react';
 import { Page } from '../App';
 
 interface SidebarProps {

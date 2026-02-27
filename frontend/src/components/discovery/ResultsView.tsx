@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CheckCircle2, XCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react@0.344.0';
+import { CheckCircle2, XCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ResultsViewProps {
   assets: any[];
@@ -7,11 +7,56 @@ interface ResultsViewProps {
   onCancel: () => void;
 }
 
+function normalizeAsset(asset: any) {
+  // Handle MBOX AccountLead format
+  if (asset.base_domain && asset.brand !== undefined) {
+    const score = asset.total_score || 0;
+    const confidence = score > 75 ? 'High' : score > 50 ? 'Medium' : 'Low';
+    
+    const categories = [];
+    if (asset.any_auth) categories.push('Authentication');
+    if (asset.any_billing) categories.push('Billing/Payment');
+    if (asset.any_subscription) categories.push('Subscription');
+    if (asset.any_rewards) categories.push('Rewards');
+    if (asset.any_cloud_domain) categories.push('Cloud');
+    
+    return {
+      name: asset.brand || asset.base_domain,
+      category: categories.length > 0 ? categories.join(', ') : 'Service',
+      confidence,
+      domain: asset.base_domain,
+      messages: asset.messages,
+      score: asset.total_score,
+      signals: {
+        auth: asset.any_auth,
+        billing: asset.any_billing,
+        subscription: asset.any_subscription,
+        rewards: asset.any_rewards,
+        cloud: asset.any_cloud_domain,
+      },
+      subjects: asset.example_subjects || [],
+      firstSeen: asset.first_seen,
+      lastSeen: asset.last_seen,
+    };
+  }
+  
+  // Handle regular asset format
+  return {
+    name: asset.name,
+    category: asset.category,
+    confidence: asset.confidence,
+    email: asset.email,
+    username: asset.username,
+  };
+}
+
 export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps) {
   const [selectedAssets, setSelectedAssets] = useState<number[]>(
     assets.map((_, idx) => idx)
   );
   const [expandedAsset, setExpandedAsset] = useState<number | null>(null);
+
+  const normalizedAssets = assets.map(normalizeAsset);
 
   const toggleAsset = (idx: number) => {
     setSelectedAssets((prev) =>
@@ -67,7 +112,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
       </div>
 
       <div className="space-y-2 mb-6 max-h-[400px] overflow-y-auto">
-        {assets.map((asset, idx) => {
+        {normalizedAssets.map((asset, idx) => {
           const isSelected = selectedAssets.includes(idx);
           const isExpanded = expandedAsset === idx;
 
@@ -137,6 +182,24 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
                         <p className="text-xs text-gray-500">Confidence</p>
                         <p className="text-sm text-gray-900">{asset.confidence}</p>
                       </div>
+                      {asset.domain && (
+                        <div>
+                          <p className="text-xs text-gray-500">Domain</p>
+                          <p className="text-sm text-gray-900 font-mono">{asset.domain}</p>
+                        </div>
+                      )}
+                      {asset.messages && (
+                        <div>
+                          <p className="text-xs text-gray-500">Messages Found</p>
+                          <p className="text-sm text-gray-900">{asset.messages}</p>
+                        </div>
+                      )}
+                      {asset.score && (
+                        <div>
+                          <p className="text-xs text-gray-500">Confidence Score</p>
+                          <p className="text-sm text-gray-900">{asset.score}</p>
+                        </div>
+                      )}
                       {asset.email && (
                         <div>
                           <p className="text-xs text-gray-500">Email</p>
@@ -149,36 +212,49 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
                           <p className="text-sm text-gray-900">{asset.username}</p>
                         </div>
                       )}
-                      {asset.lastUsed && (
-                        <div>
-                          <p className="text-xs text-gray-500">Last Used</p>
-                          <p className="text-sm text-gray-900">{asset.lastUsed}</p>
-                        </div>
-                      )}
-                      {asset.visits && (
-                        <div>
-                          <p className="text-xs text-gray-500">Visits</p>
-                          <p className="text-sm text-gray-900">{asset.visits}</p>
-                        </div>
-                      )}
-                      {asset.source && (
-                        <div>
-                          <p className="text-xs text-gray-500">Source</p>
-                          <p className="text-sm text-gray-900">{asset.source}</p>
-                        </div>
-                      )}
                     </div>
-                    <div className="pt-2">
-                      <p className="text-xs text-gray-500 mb-2">Actions</p>
-                      <div className="flex gap-2">
-                        <button className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-                          Edit Details
-                        </button>
-                        <button className="text-xs px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-                          Mark as Irrelevant
-                        </button>
+                    {asset.signals && (
+                      <div className="pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500 mb-2">Detection Signals</p>
+                        <div className="flex flex-wrap gap-1">
+                          {asset.signals.auth && (
+                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              Authentication
+                            </span>
+                          )}
+                          {asset.signals.billing && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                              Billing
+                            </span>
+                          )}
+                          {asset.signals.subscription && (
+                            <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                              Subscription
+                            </span>
+                          )}
+                          {asset.signals.rewards && (
+                            <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                              Rewards
+                            </span>
+                          )}
+                          {asset.signals.cloud && (
+                            <span className="text-xs bg-cyan-100 text-cyan-700 px-2 py-1 rounded">
+                              Cloud
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
+                    {asset.subjects && asset.subjects.length > 0 && (
+                      <div className="pt-3 border-t border-gray-200">
+                        <p className="text-xs text-gray-500 mb-2">Example Subjects</p>
+                        <ul className="text-xs text-gray-700 space-y-1">
+                          {asset.subjects.slice(0, 3).map((subject: string, i: number) => (
+                            <li key={i} className="truncate">• {subject}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

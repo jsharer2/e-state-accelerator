@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Key, Upload, Search, Smartphone, FileText } from 'lucide-react@0.344.0';
+import { Mail, Key, Upload, Search, Smartphone, FileText } from 'lucide-react';
 import { DiscoveryModal } from '../discovery/DiscoveryModal';
 
 export type DiscoveryMethod = 'email' | 'password' | 'device' | 'document' | 'manual' | 'browser';

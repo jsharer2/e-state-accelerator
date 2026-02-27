@@ -1,20 +1,23 @@
 import { useState, useEffect } from 'react';
-import { X, Mail, Key, Smartphone, Upload, FileText, Search, Loader2, CheckCircle2, AlertCircle } from 'lucide-react@0.344.0';
+import { X, Mail, Key, Smartphone, Upload, FileText, Search, CheckCircle2 } from 'lucide-react';
 import { DiscoveryMethod } from '../pages/AssetDiscovery';
 import { ScanningView } from './ScanningView';
 import { ResultsView } from './ResultsView';
 import { SetupView } from './SetupView';
+import { useEmailScan } from '../../hooks/useEmailScan';
 
 interface DiscoveryModalProps {
   method: DiscoveryMethod;
   onClose: () => void;
 }
 
-type DiscoveryState = 'setup' | 'scanning' | 'results' | 'complete';
+type DiscoveryState = 'setup' | 'uploading' | 'scanning' | 'results' | 'complete';
 
 export function DiscoveryModal({ method, onClose }: DiscoveryModalProps) {
   const [state, setState] = useState<DiscoveryState>('setup');
   const [discoveredAssets, setDiscoveredAssets] = useState<any[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { loading, progress, error, uploadAndScan } = useEmailScan();
 
   const methodConfig = {
     email: {
@@ -51,8 +54,25 @@ export function DiscoveryModal({ method, onClose }: DiscoveryModalProps) {
 
   const config = methodConfig[method];
 
-  const handleStartScan = () => {
-    setState('scanning');
+  const handleStartScan = async () => {
+    if (method === 'email' && selectedFile) {
+      setState('uploading');
+      try {
+        const results = await uploadAndScan(selectedFile);
+        // Results already include transformed data
+        setDiscoveredAssets(results.accounts || []);
+        setState('results');
+      } catch (err) {
+        console.error('Scan error:', err);
+        setState('setup');
+      }
+    } else {
+      setState('scanning');
+    }
+  };
+
+  const handleFileSelected = (file: File) => {
+    setSelectedFile(file);
   };
 
   const handleScanComplete = (assets: any[]) => {
@@ -90,10 +110,19 @@ export function DiscoveryModal({ method, onClose }: DiscoveryModalProps) {
 
         <div className="flex-1 overflow-y-auto">
           {state === 'setup' && (
-            <SetupView method={method} onStart={handleStartScan} />
+            <SetupView 
+              method={method} 
+              onStart={handleStartScan}
+              onFileSelected={handleFileSelected}
+            />
           )}
-          {state === 'scanning' && (
-            <ScanningView method={method} onComplete={handleScanComplete} />
+          {(state === 'uploading' || state === 'scanning') && (
+            <ScanningView 
+              method={method} 
+              progress={progress}
+              isUploading={state === 'uploading'}
+              onComplete={handleScanComplete} 
+            />
           )}
           {state === 'results' && (
             <ResultsView 

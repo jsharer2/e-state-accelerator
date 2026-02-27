@@ -1,4 +1,4 @@
-import { MoreVertical, Search } from 'lucide-react@0.344.0';
+import { MoreVertical, Search } from 'lucide-react';
 
 export function AssetList() {
   const assets = [

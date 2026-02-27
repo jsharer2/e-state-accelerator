@@ -1,4 +1,4 @@
-import { User, Bell, Lock, Shield, Download, Trash2 } from 'lucide-react@0.344.0';
+import { User, Bell, Lock, Shield, Download, Trash2 } from 'lucide-react';
 
 export function Settings() {
   return (

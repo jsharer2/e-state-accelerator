@@ -1,4 +1,4 @@
-import { Bell, User } from 'lucide-react@0.344.0';
+import { Bell, User } from 'lucide-react';
 import { Page } from '../App';
 
 interface DashboardHeaderProps {
