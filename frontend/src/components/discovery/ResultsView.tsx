@@ -51,12 +51,26 @@ function normalizeAsset(asset: any) {
 }
 
 export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps) {
+  const normalizedAssets = assets.map(normalizeAsset);
+
+  let lowConfidenceShown = 0;
+  const displayedAssets = normalizedAssets.filter((asset) => {
+    if (asset.confidence !== 'Low') {
+      return true;
+    }
+
+    if (lowConfidenceShown < 5) {
+      lowConfidenceShown += 1;
+      return true;
+    }
+
+    return false;
+  });
+
   const [selectedAssets, setSelectedAssets] = useState<number[]>(
-    assets.map((_, idx) => idx)
+    displayedAssets.map((_, idx) => idx)
   );
   const [expandedAsset, setExpandedAsset] = useState<number | null>(null);
-
-  const normalizedAssets = assets.map(normalizeAsset);
 
   const toggleAsset = (idx: number) => {
     setSelectedAssets((prev) =>
@@ -69,7 +83,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
   };
 
   const selectAll = () => {
-    setSelectedAssets(assets.map((_, idx) => idx));
+    setSelectedAssets(displayedAssets.map((_, idx) => idx));
   };
 
   const deselectAll = () => {
@@ -83,7 +97,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
           <div>
             <h3 className="text-base font-medium text-gray-900">Scan Complete</h3>
             <p className="text-sm text-gray-600 mt-1">
-              Found {assets.length} potential asset{assets.length !== 1 ? 's' : ''}
+              Found {displayedAssets.length} potential asset{displayedAssets.length !== 1 ? 's' : ''}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -112,7 +126,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
       </div>
 
       <div className="space-y-2 mb-6 max-h-[400px] overflow-y-auto">
-        {normalizedAssets.map((asset, idx) => {
+        {displayedAssets.map((asset, idx) => {
           const isSelected = selectedAssets.includes(idx);
           const isExpanded = expandedAsset === idx;
 
@@ -265,7 +279,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
 
       <div className="border-t border-gray-300 pt-6 flex items-center justify-between">
         <p className="text-sm text-gray-600">
-          {selectedAssets.length} of {assets.length} selected
+          {selectedAssets.length} of {displayedAssets.length} selected
         </p>
         <div className="flex items-center gap-3">
           <button

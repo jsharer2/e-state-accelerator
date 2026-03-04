@@ -51,7 +51,7 @@ export function ScanningView({ method, progress: externalProgress = 0, isUploadi
 
   const scanningSteps = {
     email: [
-      'Connecting to email server...',
+      'Analyzing messages...',
       'Scanning inbox for confirmations...',
       'Analyzing receipts and billing emails...',
       'Identifying account registrations...',
