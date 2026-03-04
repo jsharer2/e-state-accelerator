@@ -1,5 +1,5 @@
 
-# Enron Scanner App
+# AccelEstate
 
 A full-stack application for analyzing and discovering digital assets from email data.
 
