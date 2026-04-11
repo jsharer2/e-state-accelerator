@@ -7,11 +7,23 @@ import { AllAssets } from './components/pages/AllAssets';
 import { ActionItems } from './components/pages/ActionItems';
 import { Documents } from './components/pages/Documents';
 import { Settings } from './components/pages/Settings';
+import { OnboardingFlow, OnboardingData } from './components/onboarding/OnboardingFlow';
 
 export type Page = 'dashboard' | 'discovery' | 'assets' | 'actions' | 'documents' | 'settings';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+
+  const handleOnboardingComplete = (data: OnboardingData) => {
+    setOnboardingData(data);
+    setHasCompletedOnboarding(true);
+  };
+
+  if (!hasCompletedOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
+  }
 
   const renderPage = () => {
     try {
