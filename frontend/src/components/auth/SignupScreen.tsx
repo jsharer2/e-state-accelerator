@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Heart, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { scanAPI, AuthResponse } from '../../services/scanAPI';
 
 interface SignupScreenProps {
-  onSignup: (userId: string) => void;
+  onSignup: (auth: AuthResponse) => void;
   onSwitchToLogin: () => void;
 }
 
@@ -12,11 +13,21 @@ export function SignupScreen({ onSignup, onSwitchToLogin }: SignupScreenProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (fullName && email && password && password === confirmPassword && acceptedTerms) {
-      onSignup('user-123');
+    if (!canSubmit) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const auth = await scanAPI.register(fullName, email, password);
+      onSignup(auth);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Registration failed');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,7 +37,8 @@ export function SignupScreen({ onSignup, onSwitchToLogin }: SignupScreenProps) {
     email.length > 0 &&
     password.length > 0 &&
     passwordsMatch &&
-    acceptedTerms;
+    acceptedTerms &&
+    !loading;
 
   return (
     <div className="w-full max-w-md">
@@ -136,6 +148,10 @@ export function SignupScreen({ onSignup, onSwitchToLogin }: SignupScreenProps) {
             </label>
           </div>
 
+          {error && (
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
+
           <button
             type="submit"
             disabled={!canSubmit}
@@ -145,8 +161,8 @@ export function SignupScreen({ onSignup, onSwitchToLogin }: SignupScreenProps) {
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            Create Account
-            <ArrowRight className="w-4 h-4" />
+            {loading ? 'Creating account…' : 'Create Account'}
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 

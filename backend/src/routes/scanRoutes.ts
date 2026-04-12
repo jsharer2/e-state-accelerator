@@ -3,8 +3,8 @@ import multer from 'multer';
 import { tmpdir } from 'os';
 import { unlink } from 'fs/promises';
 import path from 'path';
-import { MboxParser } from '../services/mboxParser';
-import { SignalDetector } from '../services/signalDetection';
+import { MboxParser } from '../services/mboxParser.js';
+import { SignalDetector } from '../services/signalDetection.js';
 
 const router = Router();
 

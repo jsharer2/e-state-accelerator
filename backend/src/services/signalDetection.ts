@@ -1,4 +1,4 @@
-import { ExpandedMessage } from './mboxParser';
+import { ExpandedMessage } from './mboxParser.js';
 
 export interface SignalFlags {
   auth_security: boolean;

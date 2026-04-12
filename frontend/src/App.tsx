@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { DashboardHeader } from './components/DashboardHeader';
 import { Dashboard } from './components/pages/Dashboard';
@@ -9,23 +9,71 @@ import { Documents } from './components/pages/Documents';
 import { Settings } from './components/pages/Settings';
 import { OnboardingFlow, OnboardingData } from './components/onboarding/OnboardingFlow';
 import { AuthFlow } from './components/auth/AuthFlow';
+import { scanAPI, AuthResponse } from './services/scanAPI';
 
 export type Page = 'dashboard' | 'discovery' | 'assets' | 'actions' | 'documents' | 'settings';
 
+const TOKEN_KEY = 'estate_token';
+
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [authToken, setAuthToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
 
-  const handleAuthenticated = (userId: string) => {
+  // Restore session from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      setSessionLoading(false);
+      return;
+    }
+    scanAPI.getMe(token)
+      .then((user) => {
+        setAuthToken(token);
+        setIsAuthenticated(true);
+        if (user.onboardingCompleted && user.onboardingData) {
+          setOnboardingData(user.onboardingData as unknown as OnboardingData);
+          setHasCompletedOnboarding(true);
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem(TOKEN_KEY);
+      })
+      .finally(() => setSessionLoading(false));
+  }, []);
+
+  const handleAuthenticated = (auth: AuthResponse) => {
+    localStorage.setItem(TOKEN_KEY, auth.token);
+    setAuthToken(auth.token);
     setIsAuthenticated(true);
+    if (auth.onboardingCompleted && auth.onboardingData) {
+      setOnboardingData(auth.onboardingData as unknown as OnboardingData);
+      setHasCompletedOnboarding(true);
+    }
   };
 
-  const handleOnboardingComplete = (data: OnboardingData) => {
+  const handleOnboardingComplete = async (data: OnboardingData) => {
     setOnboardingData(data);
     setHasCompletedOnboarding(true);
+    if (authToken) {
+      try {
+        await scanAPI.saveOnboarding(data as unknown as Record<string, unknown>, authToken);
+      } catch (err) {
+        console.error('Failed to save onboarding data:', err);
+      }
+    }
   };
+
+  if (sessionLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <AuthFlow onAuthenticated={handleAuthenticated} />;
@@ -36,26 +84,21 @@ export default function App() {
   }
 
   const renderPage = () => {
-    try {
-      switch (currentPage) {
-        case 'dashboard':
-          return <Dashboard />;
-        case 'discovery':
-          return <AssetDiscovery />;
-        case 'assets':
-          return <AllAssets />;
-        case 'actions':
-          return <ActionItems />;
-        case 'documents':
-          return <Documents />;
-        case 'settings':
-          return <Settings />;
-        default:
-          return <Dashboard />;
-      }
-    } catch (error) {
-      console.error('Error rendering page:', error);
-      return <div className="p-6 text-red-600">Error loading page. Check console.</div>;
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'discovery':
+        return <AssetDiscovery />;
+      case 'assets':
+        return <AllAssets />;
+      case 'actions':
+        return <ActionItems />;
+      case 'documents':
+        return <Documents />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard />;
     }
   };
 

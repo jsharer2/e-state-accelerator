@@ -80,6 +80,24 @@ npm run build          # Build both projects
 - Backend API runs on port **3002**
 - Backend API health check: http://localhost:3002/api/health
 
+### Local Environment Files
+
+This repo uses local env files that are not shared in this repo.
+
+1. Create backend env file:
+```bash
+cp backend/.env.example backend/.env
+```
+2. Create frontend env file:
+```bash
+cp frontend/.env.example frontend/.env
+```
+3. Fill in `backend/.env` values:
+	- `MONGODB_URI`: your MongoDB Atlas or local Mongo URI
+	- `JWT_SECRET`: a long random secret string
+	- `PORT`: defaults to `3002`
+
+
 ## Features
 
 - Dashboard with asset overview

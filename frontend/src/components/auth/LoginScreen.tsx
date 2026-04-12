@@ -1,23 +1,33 @@
 import { useState } from 'react';
 import { Heart, Mail, Lock, ArrowRight } from 'lucide-react';
+import { scanAPI, AuthResponse } from '../../services/scanAPI';
 
 interface LoginScreenProps {
-  onLogin: (userId: string) => void;
+  onLogin: (auth: AuthResponse) => void;
   onSwitchToSignup: () => void;
 }
 
 export function LoginScreen({ onLogin, onSwitchToSignup }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email && password) {
-      onLogin('user-123');
+    setError(null);
+    setLoading(true);
+    try {
+      const auth = await scanAPI.login(email, password);
+      onLogin(auth);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const canSubmit = email.length > 0 && password.length > 0;
+  const canSubmit = email.length > 0 && password.length > 0 && !loading;
 
   return (
     <div className="w-full max-w-md">
@@ -83,6 +93,10 @@ export function LoginScreen({ onLogin, onSwitchToSignup }: LoginScreenProps) {
             </button>
           </div>
 
+          {error && (
+            <p className="text-sm text-red-600 text-center">{error}</p>
+          )}
+
           <button
             type="submit"
             disabled={!canSubmit}
@@ -92,8 +106,8 @@ export function LoginScreen({ onLogin, onSwitchToSignup }: LoginScreenProps) {
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            Sign In
-            <ArrowRight className="w-4 h-4" />
+            {loading ? 'Signing in…' : 'Sign In'}
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 
