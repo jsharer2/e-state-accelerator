@@ -8,18 +8,28 @@ import { ActionItems } from './components/pages/ActionItems';
 import { Documents } from './components/pages/Documents';
 import { Settings } from './components/pages/Settings';
 import { OnboardingFlow, OnboardingData } from './components/onboarding/OnboardingFlow';
+import { AuthFlow } from './components/auth/AuthFlow';
 
 export type Page = 'dashboard' | 'discovery' | 'assets' | 'actions' | 'documents' | 'settings';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+
+  const handleAuthenticated = (userId: string) => {
+    setIsAuthenticated(true);
+  };
 
   const handleOnboardingComplete = (data: OnboardingData) => {
     setOnboardingData(data);
     setHasCompletedOnboarding(true);
   };
+
+  if (!isAuthenticated) {
+    return <AuthFlow onAuthenticated={handleAuthenticated} />;
+  }
 
   if (!hasCompletedOnboarding) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
