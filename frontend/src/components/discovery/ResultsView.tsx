@@ -208,12 +208,7 @@ export function ResultsView({ assets, onAddAssets, onCancel }: ResultsViewProps)
                           <p className="text-sm text-gray-900">{asset.messages}</p>
                         </div>
                       )}
-                      {asset.score && (
-                        <div>
-                          <p className="text-xs text-gray-500">Confidence Score</p>
-                          <p className="text-sm text-gray-900">{asset.score}</p>
-                        </div>
-                      )}
+
                       {asset.email && (
                         <div>
                           <p className="text-xs text-gray-500">Email</p>
