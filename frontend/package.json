@@ -49,15 +49,24 @@
       },
       "devDependencies": {
             "@tailwindcss/vite": "^4.2.2",
+            "@testing-library/jest-dom": "^6.9.1",
+            "@testing-library/react": "^16.3.2",
+            "@testing-library/user-event": "^14.6.1",
             "@types/node": "^20.10.0",
             "@types/react": "^19.2.14",
             "@types/react-dom": "^19.2.3",
+            "@vitejs/plugin-react": "^4.7.0",
             "@vitejs/plugin-react-swc": "^3.10.2",
+            "jsdom": "^26.1.0",
             "tailwindcss": "^4.2.2",
-            "vite": "6.3.5"
+            "vite": "^6.4.2",
+            "vitest": "^3.2.4"
       },
       "scripts": {
             "dev": "vite",
             "build": "vite build"
+      },
+      "optionalDependencies": {
+            "@rollup/rollup-linux-x64-gnu": "^4.60.1"
       }
 }
