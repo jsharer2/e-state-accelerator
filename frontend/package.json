@@ -59,7 +59,7 @@
             "@vitejs/plugin-react-swc": "^3.10.2",
             "jsdom": "^26.1.0",
             "tailwindcss": "^4.2.2",
-            "vite": "^6.4.2",
+            "vite": "^8.0.10",
             "vitest": "^3.2.4"
       },
       "scripts": {
