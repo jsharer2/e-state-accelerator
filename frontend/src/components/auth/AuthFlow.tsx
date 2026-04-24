@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { LoginScreen } from './LoginScreen';
 import { SignupScreen } from './SignupScreen';
+import { AuthResponse } from '../../services/scanAPI';
 
 interface AuthFlowProps {
-  onAuthenticated: (userId: string) => void;
+  onAuthenticated: (auth: AuthResponse) => void;
 }
 
 export type AuthView = 'login' | 'signup';

@@ -18,8 +18,11 @@ build/
 
 # Environment
 .env
+.env.*
 .env.local
 .env.*.local
+!.env.example
+!**/.env.example
 
 # Logs
 npm-debug.log*
