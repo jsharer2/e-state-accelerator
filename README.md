@@ -170,15 +170,4 @@ Higher score + higher message count leads to higher rank.
 	- Validate extension and size limits.
 	- Ensure backend is reachable from frontend `VITE_API_URL`.
 
-## Team Handoff Checklist
-
-- Source code pushed and accessible to all teammates and project partner.
-- Environment variables documented and shared through secure channel.
-- MongoDB instance details documented (host, DB name, access method).
-- Demo path documented (register -> upload -> view results -> save scan).
-- Known limitations and next steps recorded in guidelines.
-
-## License
-
-Private project for Lexshift E-Accelerator coursework/team use.
   
