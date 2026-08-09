@@ -4,6 +4,9 @@
 			"path": ".",
 		},
 		{
+			"path": "..",
+		},
+		{
 			"name": "jcs-vault",
 			"path": "/mnt/c/users/jeffrey/obsidian/jcs_vault",
 		},
